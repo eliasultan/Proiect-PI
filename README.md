@@ -1,6 +1,6 @@
 # Proiect-PI
 Detectia artefactelor mastii faciale si incoerenta de textura
-# Analiza Stadiului Actual (State of the Art) - Deepfake Detection
+# Analiza literaturii de specialitate (State of the Art) - Deepfake Detection
 
 Tabelul de mai jos prezintă o sinteză a principalelor articole și proiecte studiate în domeniul detectării de deepfake-uri:
 
