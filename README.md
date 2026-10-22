@@ -1,8 +1,32 @@
-# Proiect-PI
-Detectia artefactelor mastii faciale si incoerenta de textura
-# Analiza literaturii de specialitate (State of the Art) - Deepfake Detection
+# Proiect-PI Detectia artefactelor mastii faciale si incoerenta de textura
+
+ 
+## Arhitectura
+
+
+![Schema_Bloc_Arhitectura](Schema_Bloc_Arhitectura.png)
+
+
+### Descrierea blocurilor
+
+
+1. **Date de intrare** - Imagini/ Video-uri de analizat
+2. **Impartirea in seturi** - Impartirea imaginilor asemanatoare sau a cadrelor in seturi de date
+3. **Preprocesarea** - Gaseste fata si cateva puncte de pe aceasta, apoi o decupeaza cu o margine de 30%
+4. **Extragere trasaturi locale** - Foloseste algorithmi clasici de procesare a ochilor, dintilor, pielii si a granitei fetei.
+5. **Extragerea trasaturi de frecventa** - Proceseaza imaginea fetei in mediul frecventei folosinf transformata Fourier
+6. **SVM** - Separa imaginile reale de cele false in urma rezultatelor obtinute anterior
+7. **Retea neuronala** - Foloseste o retea neuronala pentru a analiza seturile si a stabili un scor
+8. **Fuziunea** - Se aduc cele doua scoruri pe aceiasi scara si se face media lor
+9. **Decizie** - Se stabiliste in functie de scorul final daca imaginea e reala sau falsa
+10. **Date de iesire** - O aplicatie in care primesti rezultatele 
+
+
+## Analiza literaturii de specialitate (State of the Art) - Deepfake Detection
+
 
 Tabelul de mai jos prezintă o sinteză a principalelor articole și proiecte studiate în domeniul detectării de deepfake-uri:
+
 
 | NR. | Autor(i) / An | Titlul articolului / proiectului | Aplicație / Domeniu | Tehnologii utilizate | Metodologie / Abordare | Rezultate | Limitări | Comentarii suplimentare |
 | :--- | :--- | :--- | :--- | :--- | :--- | :--- | :--- | :--- |
