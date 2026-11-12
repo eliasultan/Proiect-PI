@@ -13,3 +13,4 @@ MODEL_MEDIAPIPE = os.path.join(FOLDER_MODELE, "face_landmarker.task")
 URL_MEDIAPIPE = "https://storage.googleapis.com/mediapipe-models/face_landmarker/face_landmarker/float16/1/face_landmarker.task"
 MARIME_FATA = 256              
 MARGINE = 0.30                 
+FISIER_SVM = os.path.join(FOLDER_MODELE, "svm.joblib")

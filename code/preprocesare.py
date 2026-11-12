@@ -161,3 +161,23 @@ def pregateste_fata(detector, imagine):
     if puncte is None:
         return None, None
     return aliniaza_si_decupeaza(imagine, puncte)
+
+"""Distanța medie de la centru la punctele date (de exemplu, raza unui iris)."""
+def raza_medie(puncte, indici, centru):
+    suma = 0.0
+    for i in indici:
+        suma = suma + distanta(puncte[i], centru)
+    return suma / len(indici)
+
+"""Pentru interfață desenarea conturului feței, irisurilor și guri."""
+def deseneaza_puncte(fata, puncte):
+    desen = fata.copy()
+    cv2.polylines(desen, [puncte_intregi(puncte, CONTUR)], True, (0, 200, 255), 1)
+    for iris in [IRIS_STANG, IRIS_DREPT]:
+        centru = centrul(puncte, iris)
+        raza = raza_medie(puncte, iris, centru)
+        if raza < 2:
+            raza = 2
+        cv2.circle(desen, (int(centru[0]), int(centru[1])), int(raza), (80, 255, 120), 1)
+    cv2.polylines(desen, [puncte_intregi(puncte, BUZE_INTERIOR)], True, (255, 140, 80), 1)
+    return desen
