@@ -1,11 +1,11 @@
-
+"""Descarca modelul MediaPipe pt gasirea fetelor."""
 import os
 import urllib.request
 
 from config import FOLDER_MODELE, MODEL_MEDIAPIPE, URL_MEDIAPIPE
 
 if os.path.isfile(MODEL_MEDIAPIPE):
-    print("Modelul exista deja:", MODEL_MEDIAPIPE)
+    print("Modelul există deja:", MODEL_MEDIAPIPE)
 else:
     os.makedirs(FOLDER_MODELE, exist_ok=True)
     print("Descarc", URL_MEDIAPIPE)

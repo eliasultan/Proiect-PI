@@ -1,3 +1,4 @@
+"""Pregatirea datelor: pentru fiecare imagine gasesc fața și o salvez decupata în cache/fete."""
 import os
 import argparse
 import numpy as np
@@ -8,7 +9,7 @@ from preprocesare import creeaza_detector, citeste_imagine, salveaza_imagine, pr
 
 COLOANE_INDEX = ["cale", "split", "clasa", "eticheta", "grup", "fata", "puncte", "gasita"]
 
-
+"""Cate imagini din fiecare split și clasă."""
 def pastreaza_primele(imagini, cate):
     pastrate = []
     numar = {}
@@ -24,28 +25,28 @@ def pastreaza_primele(imagini, cate):
 
 def main():
     parser = argparse.ArgumentParser()
-    parser.add_argument("--max", type=int, default=0, help="cate imagini pe split si clasa (0 = toate)")
+    parser.add_argument("--max", type=int, default=0, help="câte imagini pe split și clasă (0 = toate)")
     args = parser.parse_args()
 
     imagini = listeaza_imaginile()
     if len(imagini) == 0:
-        print("Nu am gasit imagini în folderul date/. Vezi structura ceruta în README.")
+        print("Nu am găsit imagini în folderul date/. Vezi structura cerută în README.")
         return
     imagini = separa_validare(imagini)
     if args.max > 0:
         imagini = pastreaza_primele(imagini, args.max)
-    print("Imagini de pregatit:", len(imagini))
+    print("Imagini de pregătit:", len(imagini))
 
     detector = creeaza_detector()
     for i in range(len(imagini)):
         imagine = imagini[i]
         nume_fisier = os.path.basename(imagine["cale"])                       # de exemplu "r001.jpg"
-        nume = os.path.splitext(nume_fisier)[0]                               # fara extensie: "r001"
+        nume = os.path.splitext(nume_fisier)[0]                               # fără extensie: "r001"
         folder_fata = os.path.join(FOLDER_CACHE, "fete", imagine["split"], imagine["clasa"])
         cale_fata = os.path.join(folder_fata, nume + ".png")
         cale_puncte = os.path.join(folder_fata, nume + ".npy")
 
-        if not os.path.isfile(cale_fata):          # daca am rulat deja o data, nu o mai fac
+        if not os.path.isfile(cale_fata):          # dacă am rulat deja o dată, nu o mai fac
             img = citeste_imagine(imagine["cale"])
             if img is not None:
                 fata, puncte = pregateste_fata(detector, img)
@@ -54,11 +55,11 @@ def main():
                     np.save(cale_puncte, puncte)
 
         if os.path.isfile(cale_fata):
-            imagine["fata"] = os.path.relpath(cale_fata, FOLDER_PROIECT)       # cale relativa
+            imagine["fata"] = os.path.relpath(cale_fata, FOLDER_PROIECT)       # cale relativă: cache/fete/...
             imagine["puncte"] = os.path.relpath(cale_puncte, FOLDER_PROIECT)
             imagine["gasita"] = 1
         else:
-            imagine["fata"] = ""                   # nicio fata gasita în imagine
+            imagine["fata"] = ""                   # nicio față găsită în imagine
             imagine["puncte"] = ""
             imagine["gasita"] = 0
         imagine["cale"] = os.path.relpath(imagine["cale"], FOLDER_PROIECT)
@@ -70,7 +71,7 @@ def main():
     os.makedirs(FOLDER_CACHE, exist_ok=True)
     scrie_tabel(os.path.join(FOLDER_CACHE, "index.csv"), imagini, COLOANE_INDEX)
 
-    # cat am gasit din fiecare split si clasa
+    # cât am găsit din fiecare split și clasă
     cu_fata = []
     for imagine in imagini:
         if imagine["gasita"] == 1:
@@ -78,7 +79,7 @@ def main():
     total = numara(imagini)
     gasite = numara(cu_fata)
     print()
-    print("Fete gasite (gasite / total):")
+    print("Fețe găsite (găsite / total):")
     for cheie in sorted(total):
         print("  ", cheie, ":", gasite.get(cheie, 0), "/", total[cheie])
     print("Am salvat cache/index.csv")
