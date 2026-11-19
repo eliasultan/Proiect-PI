@@ -1,4 +1,4 @@
-
+"""Antrenarea ramurii B: EfficientNet-B0 pe fețele decupate."""
 import os
 import argparse
 import random
@@ -12,6 +12,7 @@ from ramura_b import SetFete, construieste_model, dispozitiv, antreneaza, scorur
 
 
 def fete_din(fete, split):
+    """Doar fețele dintr-un split."""
     rezultat = []
     for fata in fete:
         if fata["split"] == split:
@@ -20,6 +21,7 @@ def fete_din(fete, split):
 
 
 def fa_incarcator(fete, pentru_antrenare, lot, workers):
+    """Un DataLoader: dă rețelei imaginile în loturi de câte `lot`."""
     cai = []
     etichete = []
     for fata in fete:
@@ -32,11 +34,11 @@ def fa_incarcator(fete, pentru_antrenare, lot, workers):
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("--epoci", type=int, default=5)
-    parser.add_argument("--lot", type=int, default=16, help="cate imagini intra deodata in retea")
-    parser.add_argument("--lr", type=float, default=0.0003, help="rata de invatare")
-    parser.add_argument("--workers", type=int, default=2, help="procese care incarca imaginile")
+    parser.add_argument("--lot", type=int, default=16, help="câte imagini intră deodată în rețea")
+    parser.add_argument("--lr", type=float, default=0.0003, help="rata de învățare")
+    parser.add_argument("--workers", type=int, default=2, help="procese care încarcă imaginile")
     args = parser.parse_args()
-    random.seed(SEED)                              # aceleasi numere aleatoare la fiecare rulare
+    random.seed(SEED)                              # aceleași numere aleatoare la fiecare rulare
     np.random.seed(SEED)
     torch.manual_seed(SEED)
 
@@ -53,9 +55,9 @@ def main():
         else:
             false = false + 1
     device = dispozitiv()
-    print("Dispozitiv:", device, "· fete de antrenare:", len(train), "(", reale, "reale,", false, "false ) · de validare:", len(val))
+    print("Dispozitiv:", device, "· fețe de antrenare:", len(train), "(", reale, "reale,", false, "false ) · de validare:", len(val))
 
-    # daca am mai putine falsuri decat reale, greselile pe falsuri conteaza mai mult (si invers)
+    # dacă am mai puține falsuri decât reale, greșelile pe falsuri contează mai mult (și invers)
     if false > 0:
         pondere_fals = reale / false
     else:
@@ -72,9 +74,9 @@ def main():
 
     os.makedirs(FOLDER_MODELE, exist_ok=True)
     torch.save({"stare": model.state_dict(), "auc_val": auc}, FISIER_CNN)
-    print("Cel mai bun AUC pe validare:", round(auc, 4), "· am salvat modelul in", FISIER_CNN)
+    print("Cel mai bun AUC pe validare:", round(auc, 4), "· am salvat modelul în", FISIER_CNN)
 
-    # scorul B pentru fetele din validare și test
+    # scorul B pentru fețele din validare și test
     rezultat = []
     for parte in [val, test]:
         if len(parte) == 0:
@@ -86,7 +88,7 @@ def main():
             rand["scor_B"] = scoruri_parte[i]
             rezultat.append(rand)
     scrie_tabel(os.path.join(FOLDER_CACHE, "scoruri_B.csv"), rezultat, ["fata", "split", "eticheta", "grup", "scor_B"])
-    print("Am salvat scorurile in cache/scoruri_B.csv")
+    print("Am salvat scorurile în cache/scoruri_B.csv")
 
 
 if __name__ == "__main__":

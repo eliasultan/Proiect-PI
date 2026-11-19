@@ -1,7 +1,8 @@
-"""Blocurile 6–8 din schemă, ramura B: augmentări, rețeaua EfficientNet-B0 și Grad-CAM."""
+"""rețeaua EfficientNet-B0 și Grad-CAM."""
 import io
 import copy
 import random
+import numpy as np
 import cv2
 import torch
 import timm
@@ -16,9 +17,9 @@ MEDIE = [0.485, 0.456, 0.406]
 ABATERE = [0.229, 0.224, 0.225]
 
 
-# ------------------------------------------------------------ blocul 6: augmentări
+#augmentări
 def jpeg_aleator(imagine):
-    """În jumătate din cazuri recomprim imaginea JPEG cu o calitate la întâmplare (între 40 și 95),
+    """În jumătate din cazuri recomprima imaginea JPEG cu o calitate la întâmplare (între 40 și 95),
     ca rețeaua să nu învețe compresia în loc de artefactele măștii."""
     if random.random() < 0.5:
         return imagine                             # în cealaltă jumătate o las neschimbată
@@ -72,7 +73,7 @@ def tensor_din_imagine(fata):
     return x.unsqueeze(0)                          # 1 x 3 x 224 x 224: un lot cu o singură imagine
 
 
-# ------------------------------------------------------------ blocul 7: EfficientNet-B0
+#EfficientNet-B0
 def construieste_model(preantrenat=True):
     """EfficientNet-B0 cu o singură ieșire: un număr care e mare când imaginea pare falsă."""
     if preantrenat:
@@ -155,3 +156,41 @@ def incarca_model(cale, device=None):
     model = model.to(device)
     model.eval()
     return model
+
+#Grad-CAM
+def harta_gradcam(model, x):
+    """Harta Grad-CAM: zonele care au împins rețeaua spre „fals”.
+
+    Rețeaua are două părți: forward_features (straturile convoluționale, care dau 1280 de hărți de 7 x 7)
+    și forward_head (care face din hărți scorul). Fiecare hartă primește o pondere egală cu media
+    gradientului ei (cât contează pentru scor), apoi adun hărțile înmulțite cu ponderile."""
+    model.eval()
+    x = x.to(dispozitiv())
+    model.zero_grad()
+    harti = model.forward_features(x)              # 1 x 1280 x 7 x 7
+    harti.retain_grad()                            # vreau să păstrez gradientul acestor hărți
+    iesire = model.forward_head(harti)             # 1 x 1
+    scor = iesire[0][0]
+    scor.backward()                                # calculează gradienții, până la hărți
+
+    activari = harti[0].detach().cpu().numpy()     # 1280 x 7 x 7, ca array numpy
+    gradient = harti.grad[0].cpu().numpy()         # 1280 x 7 x 7
+    harta = np.zeros((activari.shape[1], activari.shape[2]))
+    for k in range(activari.shape[0]):             # pentru fiecare dintre cele 1280 de hărți
+        pondere = gradient[k].mean()
+        harta = harta + pondere * activari[k]
+    harta[harta < 0] = 0                           # păstrez doar ce împinge spre „fals”
+    if harta.max() > 0:
+        harta = harta / harta.max()                # valori între 0 și 1
+    return harta, float(scor.item())
+
+
+def suprapune_harta(fata, harta, transparenta=0.45):
+    """Pun harta colorată peste față: roșu = zonă importantă pentru decizia „fals”."""
+    inaltime = fata.shape[0]
+    latime = fata.shape[1]
+    harta = cv2.resize(harta, (latime, inaltime), interpolation=cv2.INTER_CUBIC)
+    harta = np.clip(harta, 0, 1)                   # după mărire, valorile pot ieși puțin din [0, 1]
+    harta = (harta * 255).astype(np.uint8)
+    colorata = cv2.applyColorMap(harta, cv2.COLORMAP_JET)
+    return cv2.addWeighted(fata, 1 - transparenta, colorata, transparenta, 0)

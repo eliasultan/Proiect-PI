@@ -181,3 +181,33 @@ def deseneaza_puncte(fata, puncte):
         cv2.circle(desen, (int(centru[0]), int(centru[1])), int(raza), (80, 255, 120), 1)
     cv2.polylines(desen, [puncte_intregi(puncte, BUZE_INTERIOR)], True, (255, 140, 80), 1)
     return desen
+
+def extrage_cadre(cale_video, numar_cadre=16):
+    """numar de cadre luate la distanțe egale din video"""
+    cadre = []
+    video = cv2.VideoCapture(cale_video)
+    total = int(video.get(cv2.CAP_PROP_FRAME_COUNT))  # câte cadre are video-ul
+    if total <= 0:
+        video.release()
+        return cadre
+
+    doriti = []
+    if numar_cadre == 1:
+        doriti.append(0)
+    else:
+        pas = (total - 1) / (numar_cadre - 1)
+        for k in range(numar_cadre):
+            doriti.append(round(k * pas))
+
+    i = 0
+    while True:
+        ok = video.grab()                             # trec la cadrul următor fără să-l decodez
+        if not ok:
+            break                                     # s-a terminat video-ul
+        if i in doriti:
+            ok, cadru = video.retrieve()              # decodez doar cadrele de care am nevoie
+            if ok:
+                cadre.append((i, cadru))
+        i = i + 1
+    video.release()
+    return cadre
