@@ -10,16 +10,17 @@
 ### Descrierea blocurilor
 
 
-1. **Date de intrare** - Imagini/ Video-uri de analizat
-2. **Impartirea in seturi** - Impartirea imaginilor asemanatoare sau a cadrelor in seturi de date
-3. **Preprocesarea** - Gaseste fata si cateva puncte de pe aceasta, apoi o decupeaza cu o margine de 30%
-4. **Extragere trasaturi locale** - Foloseste algorithmi clasici de procesare a ochilor, dintilor, pielii si a granitei fetei.
-5. **Extragerea trasaturi de frecventa** - Proceseaza imaginea fetei in mediul frecventei folosinf transformata Fourier
-6. **SVM** - Separa imaginile reale de cele false in urma rezultatelor obtinute anterior
-7. **Retea neuronala** - Foloseste o retea neuronala pentru a analiza seturile si a stabili un scor
-8. **Fuziunea** - Se aduc cele doua scoruri pe aceiasi scara si se face media lor
-9. **Decizie** - Se stabiliste in functie de scorul final daca imaginea e reala sau falsa
-10. **Date de iesire** - O aplicatie in care primesti rezultatele 
+1. **Date de intrare** - Imagini de analizat
+2. **Impartirea in seturi** - Impartirea imaginilor sau a cadrelor dintr-un video in seturi de date: train pentru antrenare, val pentru validare și test pentru evaluare
+3. **Preprocesarea** - Se foloseste de MediaPipe si gaseste fata cu 478 de puncte de pe aceasta, o decupeaza cu o margine de 30% si alineaza ochii, apoi o redimesioneaza la 256 x 256
+4. **Trasaturi locale** - Foloseste algorithmi clasici de procesare pentru obtinerea trasaturilor ochilor, dintilor, pielii si a granitei mastii.
+5. **Trasaturi de frecventa** - Proceseaza imaginea fetei in mediul frecventei folosind transformata Fourier 2D analizand 64 de inele pe spectrul mediat
+6. **SVM** - Separa imaginile reale de cele false in urma rezultatelor obtinute anterior folosind un Kernel RBF
+7. **Pregatire pentru retea** - redimensioneaza imginile la 224 x 224, normalizeaza cu media si abaterea ImageNet si foloseste augumetari pentru antrenare ca reteaua sa nu invete imaginiile pe de rost
+8. **Reteaua EffcientNet-B0** - Foloseste o retea convolutionaara pentru a analiza seturile si a stabili un scor. Pastreaza epoca cu AUC maxim pe validare si foloseste Grad-CAM pentru a reprezenta vizual printr-o harta unde s-a uitat reteaua
+9. **Fuziunea scorurilor** - Se aduc cele doua scoruri pe aceiasi scara folosind z-score-uri si se face media lor
+10. **Decizie** - Se stabiliste in functie de scorul final daca imaginea e reala sau falsa. Se folosesteca pragul Youden adica rezultatul maxim al diferentei TPR-FPR pe setul de validare
+11. **Rezultat** - Verdictul REAL sau FALS cu scorurile obtinute si cate o imagine pentru harta Grad-CAM si fata cu punctele obtinute cu MediaPipe
 
 
 ## Analiza literaturii de specialitate (State of the Art) - Deepfake Detection
